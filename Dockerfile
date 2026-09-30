@@ -18,6 +18,7 @@ COPY config.py .
 COPY database/ database/
 COPY workers/ workers/
 COPY app/ app/
+COPY .streamlit/ .streamlit/
 
 RUN mkdir -p /data && chmod -R g+rwX /data /app
 

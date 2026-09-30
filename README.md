@@ -36,7 +36,10 @@ red-hat-email-preview-app/
 │   ├── linux_playwright_worker.py
 │   └── windows_outlook_worker.py
 ├── app/
-│   └── dashboard.py
+│   ├── dashboard.py
+│   └── theme.py          # PatternFly / RHDS-inspired Streamlit theme
+├── .streamlit/
+│   └── config.toml       # Brand colors (Red Hat red, gray surfaces)
 └── k8s/
     ├── namespace.yaml
     ├── pvc.yaml
@@ -76,6 +79,14 @@ PY
 ```
 
 Open http://localhost:8501 and http://localhost:8025 (Mailpit UI).
+
+## Dashboard design system
+
+The Streamlit UI is styled to approximate **PatternFly** product patterns and
+**RHDS** tokens from [ux.redhat.com](https://ux.redhat.com/) (brand red `#EE0000`,
+Red Hat Display/Text, masthead, cards, status labels, alerts, empty state).
+Full RHDS web components are not embeddable in Streamlit; this is a CSS/token
+alignment, not a native RHDS app.
 
 ## OpenShift deploy (MVP)
 
