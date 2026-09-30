@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: email-preview-data
+  namespace: email-preview
+  labels:
+    app.kubernetes.io/name: red-hat-email-preview-app
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  # Uncomment / set to your cluster's RWX storage class if required:
+  # storageClassName: ocs-storagecluster-cephfs

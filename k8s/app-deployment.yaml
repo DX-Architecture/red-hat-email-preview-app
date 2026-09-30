@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-preview-app
+  namespace: email-preview
+  labels:
+    app: email-preview-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: email-preview-app
+  template:
+    metadata:
+      labels:
+        app: email-preview-app
+    spec:
+      containers:
+        - name: dashboard
+          image: image-registry.openshift-image-registry.svc:5000/email-preview/email-preview-app:latest
+          imagePullPolicy: Always
+          command: ["streamlit", "run", "app/dashboard.py", "--server.address=0.0.0.0", "--server.port=8501", "--browser.gatherUsageStats=false"]
+          env:
+            - name: DATA_DIR
+              value: /data
+            - name: DB_PATH
+              value: /data/email_preview.db
+            - name: MAILPIT_API_URL
+              value: http://mailpit:8025
+          ports:
+            - name: http
+              containerPort: 8501
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+        - name: linux-worker
+          image: image-registry.openshift-image-registry.svc:5000/email-preview/email-preview-app:latest
+          imagePullPolicy: Always
+          command: ["python", "workers/linux_playwright_worker.py"]
+          env:
+            - name: DATA_DIR
+              value: /data
+            - name: DB_PATH
+              value: /data/email_preview.db
+            - name: MAILPIT_API_URL
+              value: http://mailpit:8025
+            - name: MAILPIT_POLL_SECONDS
+              value: "10"
+            - name: WORKER_NAME
+              value: linux-playwright
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: email-preview-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-preview-app
+  namespace: email-preview
+  labels:
+    app: email-preview-app
+spec:
+  selector:
+    app: email-preview-app
+  ports:
+    - name: http
+      port: 8501
+      targetPort: http

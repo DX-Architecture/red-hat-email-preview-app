@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: email-preview
+  labels:
+    app.kubernetes.io/name: red-hat-email-preview-app
+    app.kubernetes.io/part-of: digital-activation
